@@ -128,14 +128,15 @@ def submit(request, course_id):
     submission.choices.set(choices)
 
     # Redirect to show exam result
-    submission_id = submission_id
+    submission_id = submission.id
     return HttpResponseRedirect(reverse(viewname='onlinecourse:exam_result', args=(course.id, submission_id)))
 
 # <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,
 def show_exam_result(request, course_id, submission_id):
     # Get course and submission based on their ids
+    context = {}
     course = get_object_or_404(Course, pk=course_id)
-    submission = Submission.objects.get(submission_id=submission_id)
+    submission = Submission.objects.get(id=submission_id)
 
     # Get the selected choice ids from the submission record
     choices = submission.choices.all()
@@ -145,7 +146,7 @@ def show_exam_result(request, course_id, submission_id):
     questions = course.question_set.all()
 
     for question in questions:
-        correct_choices = question.choice_set.filter(is_correct=True)
+        correct_choices = question.choice_set.filter(correct=True)
         selected_choices = choices.filter(question=question)
 
         if set(correct_choices) == set(selected_choices):
